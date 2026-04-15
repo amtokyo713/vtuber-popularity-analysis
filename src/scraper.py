@@ -132,9 +132,12 @@ def dedupe(entries: Iterable[dict]) -> list[dict]:
     return out
 
 
+MAX_PAGE = 6
+
+
 def scrape_all(cache_dir: Path) -> list[dict]:
     all_entries: list[dict] = []
-    for page in range(1, 5):
+    for page in range(1, MAX_PAGE + 1):
         cache_path = cache_dir / f"page{page}.html"
         html = fetch_page(page, cache_path)
         entries = parse_html(html, source_page=page)
