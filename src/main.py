@@ -43,6 +43,11 @@ def run_pipeline(args: argparse.Namespace) -> None:
     if args.only_report:
         print("=== Phase 5: レポート生成のみ ===")
         reporter.generate_report(analyzed_path, report_path, template_dir)
+        if args.encrypt:
+            print("\n=== Phase 6: パスワード暗号化 ===")
+            import encrypt_report
+            sys.argv = ["encrypt_report.py", args.encrypt]
+            encrypt_report.main()
         return
 
     # Phase 1: スクレイピング
