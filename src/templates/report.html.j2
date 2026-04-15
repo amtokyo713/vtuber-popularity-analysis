@@ -1,0 +1,1209 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>新人VTuber 人気要因 総合分析レポート</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #191c26;
+    --panel2: #232736;
+    --text: #e8eaf6;
+    --muted: #8a90a6;
+    --accent: #ff4081;
+    --accent2: #5e7bff;
+    --accent3: #80cbc4;
+    --line: #2a2e3d;
+    --tag-bg: #2a2e3d;
+    --ok: #4caf50;
+    --warn: #ffab91;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  header {
+    padding: 22px 24px;
+    background: linear-gradient(135deg, #1a1d29 0%, #221626 50%, #1a2840 100%);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  header h1 { margin: 0 0 4px; font-size: 24px; letter-spacing: 0.5px; }
+  header .sub { color: var(--muted); font-size: 12px; }
+  header nav {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+  }
+  header nav a {
+    font-size: 11px;
+    padding: 4px 10px;
+    background: var(--panel2);
+    color: var(--accent3);
+    border-radius: 999px;
+    text-decoration: none;
+    border: 1px solid var(--line);
+  }
+  header nav a:hover { background: #2a1a2a; color: var(--accent); }
+
+  main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+  section { margin-bottom: 48px; scroll-margin-top: 120px; }
+  h2 {
+    font-size: 22px;
+    margin: 0 0 18px;
+    padding-left: 12px;
+    border-left: 5px solid var(--accent);
+    line-height: 1.3;
+  }
+  h2 .sub {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: normal;
+    margin-top: 4px;
+  }
+  h3 {
+    font-size: 16px;
+    margin: 20px 0 10px;
+    color: var(--accent3);
+    padding-bottom: 4px;
+    border-bottom: 1px dashed var(--line);
+  }
+  p { margin: 0 0 10px; color: #d0d5e0; }
+
+  /* --- エグゼクティブサマリー --- */
+  .exec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 14px;
+  }
+  .exec-card {
+    background: linear-gradient(145deg, var(--panel) 0%, #21182a 100%);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .exec-card .icon {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+  .exec-card .title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .exec-card .body {
+    font-size: 13px;
+    color: #c0c5d5;
+    line-height: 1.7;
+  }
+
+  /* --- アクション指針 --- */
+  .action-list {
+    display: grid;
+    gap: 10px;
+  }
+  .action-item {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: 14px;
+    align-items: start;
+  }
+  .action-item .priority {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    text-align: center;
+    line-height: 1.1;
+  }
+  .action-item .priority small {
+    display: block;
+    font-size: 9px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .action-item .label {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .action-item .detail {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .action-item .repro {
+    text-align: right;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 120px;
+  }
+  .stars {
+    color: #ffca28;
+    letter-spacing: 1px;
+    font-size: 13px;
+  }
+  .stars-empty {
+    color: #3a3e4e;
+  }
+  .cost-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--panel2);
+    color: var(--accent3);
+    border-radius: 999px;
+    font-size: 10px;
+    margin-top: 4px;
+  }
+
+  /* --- 層別・事務所別カード --- */
+  .tier-card, .agency-row, .pattern-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .tier-card .head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .tier-badge {
+    font-size: 14px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--panel2);
+    color: var(--accent);
+  }
+  .tier-badge.tier-s { background: #3a1818; color: #ffab91; }
+  .tier-badge.tier-a { background: #332218; color: #ffcc80; }
+  .tier-badge.tier-b { background: #253316; color: #c5e1a5; }
+  .tier-badge.tier-c { background: #1a2833; color: #90caf9; }
+  .tier-badge.tier-d { background: #20202e; color: #b0bec5; }
+  .tier-badge.tier-e { background: #181820; color: #808090; }
+
+  .tier-card .meta {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .tier-card .meta b { color: var(--accent3); margin-right: 2px; }
+  .tier-card .reps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .rep-mini {
+    display: flex;
+    gap: 10px;
+    background: var(--panel2);
+    border-radius: 8px;
+    padding: 8px;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .rep-mini:hover { background: #2a1f2f; }
+  .rep-mini img {
+    width: 80px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .rep-mini .rn {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .rep-mini .rp {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .rep-mini .rp b { color: var(--accent); }
+
+  /* --- 事務所表 --- */
+  .agency-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .agency-table th, .agency-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+  }
+  .agency-table th {
+    background: var(--panel2);
+    color: var(--accent3);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .agency-table tr:last-child td { border-bottom: none; }
+  .agency-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .agency-table td.num b { color: var(--accent); }
+
+  /* --- 成功パターン別 --- */
+  .pattern-card .head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .pattern-card .label {
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .pattern-card .ratio {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .pattern-card .ratio b { color: var(--accent); font-size: 16px; }
+  .pattern-card .avg-peak {
+    background: #2a1a2a;
+    color: #ff80ab;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .repro-box {
+    background: var(--panel2);
+    border-left: 3px solid var(--accent3);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-size: 12px;
+  }
+  .repro-box .head {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .repro-box .score {
+    font-weight: 700;
+    color: #ffca28;
+  }
+  .repro-box .detail {
+    color: #c0c5d5;
+    line-height: 1.7;
+  }
+
+  /* --- SNS分析 --- */
+  .sns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .sns-panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .sns-panel .title {
+    color: var(--accent3);
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .sns-panel .number {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .sns-panel .number small {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .sns-panel .comment {
+    font-size: 12px;
+    color: #b0b5c5;
+    line-height: 1.7;
+  }
+
+  /* --- 個人勢成功事例 --- */
+  .indie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 12px;
+  }
+  .indie-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    gap: 12px;
+  }
+  .indie-card img {
+    width: 120px;
+    height: 68px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .indie-card .body { flex: 1; min-width: 0; }
+  .indie-card .name {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .indie-card .stats {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .indie-card .stats b { color: var(--accent); }
+  .indie-card .factors {
+    font-size: 11px;
+    color: #b0b5c5;
+    line-height: 1.6;
+  }
+  .indie-card .factors div { margin-bottom: 2px; }
+
+  /* --- 失敗パターン --- */
+  .no-signal-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+  }
+  .no-signal-item {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .no-signal-item .n { font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .no-signal-item .p { color: var(--warn); font-variant-numeric: tabular-nums; }
+
+  /* --- 既存の統計・カード --- */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+  }
+  .stat-card .label { color: var(--muted); font-size: 12px; }
+  .stat-card .value { font-size: 24px; font-weight: 700; margin-top: 4px; }
+
+  .dist-list {
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 8px 20px;
+  }
+  .dist-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 13px;
+  }
+  .dist-item .bar {
+    flex: 1;
+    margin: 0 10px;
+    background: var(--panel2);
+    height: 6px;
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+    top: 8px;
+  }
+  .dist-item .bar > span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+  }
+
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+  }
+  .filter-bar label {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .filter-bar input, .filter-bar select {
+    background: var(--panel2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 6px 8px;
+    font-size: 13px;
+    min-width: 160px;
+  }
+  .filter-bar input[type="text"] { min-width: 220px; }
+  .filter-bar .count {
+    margin-left: auto;
+    align-self: center;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.15s, border-color 0.15s;
+    cursor: pointer;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .card .thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    background: #000;
+  }
+  .card .body {
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+  .card .name { font-size: 15px; font-weight: 700; line-height: 1.3; }
+  .card .meta { font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+  .card .peak { color: var(--accent); font-weight: 700; }
+  .card .subs { color: var(--accent2); font-weight: 700; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--tag-bg);
+    color: var(--text);
+  }
+  .tag.agency { background: #2a1a2a; color: #ff80ab; }
+  .tag.pattern { background: #1a2a2a; color: #80cbc4; }
+  .tag.tier-s { background: #3a1818; color: #ffab91; }
+  .tag.tier-a { background: #332218; color: #ffcc80; }
+  .tag.tier-b { background: #253316; color: #c5e1a5; }
+  .tag.tier-c { background: #1a2833; color: #90caf9; }
+  .tag.tier-d { background: #20202e; color: #b0bec5; }
+  .tag.tier-e { background: #181820; color: #808090; }
+
+  .summary {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: pre-wrap;
+    line-height: 1.5;
+    max-height: 6.5em;
+    overflow: hidden;
+    position: relative;
+  }
+  .summary::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 20px;
+    background: linear-gradient(transparent, var(--panel));
+  }
+
+  /* modal */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 92vh;
+    overflow: auto;
+    padding: 22px 24px;
+  }
+  .modal h3 { margin: 0 0 6px; font-size: 22px; border: none; }
+  .modal .close {
+    float: right;
+    background: var(--panel2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .modal .section-h {
+    margin: 18px 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--line);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .modal .buzz-item {
+    background: var(--panel2);
+    border-left: 3px solid var(--accent2);
+    padding: 8px 12px;
+    margin: 6px 0;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .modal .buzz-item a { color: var(--accent); text-decoration: none; }
+  .modal .buzz-item a:hover { text-decoration: underline; }
+  .modal .buzz-item .matched {
+    display: inline-block;
+    background: #3a1a33;
+    color: #ff80ab;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    margin-right: 4px;
+  }
+  .modal .kv { display: grid; grid-template-columns: 140px 1fr; gap: 4px 10px; font-size: 13px; }
+  .modal .kv dt { color: var(--muted); }
+  .modal .kv dd { margin: 0; word-break: break-all; }
+  .modal pre {
+    background: var(--panel2);
+    border-radius: 6px;
+    padding: 10px;
+    white-space: pre-wrap;
+    font-size: 12px;
+    color: #c5cae9;
+    max-height: 300px;
+    overflow: auto;
+  }
+
+  footer {
+    padding: 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--line);
+    margin-top: 30px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>新人VTuber 人気要因 総合分析レポート</h1>
+  <div class="sub">
+    対象: {{ stats.total }}チャンネル (eve.ebb.jp「1年間の同接ランキング」より) /
+    生成: {{ generated_at }}
+  </div>
+  <nav>
+    <a href="#summary">📌 エグゼクティブサマリー</a>
+    <a href="#actions">🎯 アクション指針</a>
+    <a href="#tier">📊 層別分析</a>
+    <a href="#agency">🏢 事務所別分析</a>
+    <a href="#pattern">🔍 パターン別分析</a>
+    <a href="#sns">📱 SNS戦略分析</a>
+    <a href="#indie">💎 個人勢成功事例</a>
+    <a href="#fail">⚠️ 失敗パターン</a>
+    <a href="#stats">📈 サマリー統計</a>
+    <a href="#cards">🎴 VTuber個別カード</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- エグゼクティブサマリー -->
+  <section id="summary">
+    <h2>📌 エグゼクティブサマリー
+      <span class="sub">データ全体を見て見えた5つの主要な発見</span>
+    </h2>
+    <div class="exec-grid">
+      {% for item in insights.executive_summary %}
+      <div class="exec-card">
+        <div class="icon">{{ item.icon }}</div>
+        <div class="title">{{ item.title }}</div>
+        <div class="body">{{ item.body }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- アクション指針 -->
+  <section id="actions">
+    <h2>🎯 アクション指針 — どうすれば伸びるのか?
+      <span class="sub">再現性スコア(5段階)付き / 優先度順。上にあるものほど低コストかつ再現性が高い</span>
+    </h2>
+    <div class="action-list">
+      {% for a in insights.action_recommendations %}
+      <div class="action-item">
+        <div class="priority">{{ a.priority }}<small>位</small></div>
+        <div>
+          <div class="label">{{ a.label }}</div>
+          <div class="detail">{{ a.detail }}</div>
+          <div style="margin-top:4px"><span class="cost-tag">💰 {{ a.cost }}</span></div>
+        </div>
+        <div class="repro">
+          <div class="stars">{% for i in range(a.reproducibility) %}★{% endfor %}<span class="stars-empty">{% for i in range(5 - a.reproducibility) %}★{% endfor %}</span></div>
+          <div style="margin-top:4px">再現性 {{ a.reproducibility }}/5</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- 層別分析 -->
+  <section id="tier">
+    <h2>📊 層別分析 — 同接帯ごとの特徴と到達条件
+      <span class="sub">S層(1万超)〜E層(250未満)の6段階で分類した各層の構造</span>
+    </h2>
+    {% for t in insights.tier_analysis %}
+    <div class="tier-card">
+      <div class="head">
+        <span class="tier-badge tier-{{ t.tier[0] | lower }}">{{ t.tier }}</span>
+        <span>n = <b style="color:var(--accent)">{{ t.count }}</b>名</span>
+        <span>個人勢率 <b style="color:var(--accent2)">{{ t.indie_ratio }}%</b></span>
+      </div>
+      <p style="font-size:13px">{{ t.meaning }}</p>
+      <div class="meta">
+        <span><b>平均同接</b>{{ t.avg_peak | format_int }}</span>
+        <span><b>中央値</b>{{ t.median_peak | format_int }}</span>
+        <span><b>平均登録者</b>{{ t.avg_followers | format_int }}</span>
+        <span><b>中央値登録者</b>{{ t.median_followers | format_int }}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px">
+        <b style="color:var(--accent3)">主要成功パターン: </b>
+        {% for label, c in t.top_patterns %}
+          {{ label }}({{ c }}){% if not loop.last %} / {% endif %}
+        {% endfor %}
+      </div>
+      <div class="reps">
+        {% for r in t.representatives %}
+        <a class="rep-mini" href="{{ r.video_url }}" target="_blank" rel="noopener">
+          <img src="{{ r.thumb_url }}" alt="" loading="lazy" />
+          <div>
+            <div class="rn">{{ r.name }}</div>
+            <div class="rp">同接 <b>{{ r.peak | format_int }}</b> / 登録 {{ r.followers | format_int }} / {{ r.agency }}</div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+
+  <!-- 事務所別分析 -->
+  <section id="agency">
+    <h2>🏢 事務所別分析 — ブランド力の差は同接にどう出るか
+      <span class="sub">大手2社(ホロ/にじ)と中堅・個人勢の成果を横並びで比較</span>
+    </h2>
+    <table class="agency-table">
+      <thead>
+        <tr>
+          <th>事務所</th>
+          <th class="num">人数</th>
+          <th class="num">平均同接</th>
+          <th class="num">中央値</th>
+          <th class="num">最高同接</th>
+          <th class="num">平均登録者</th>
+          <th>代表チャンネル</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in insights.agency_analysis %}
+        <tr>
+          <td><b>{{ a.agency }}</b></td>
+          <td class="num"><b>{{ a.count }}</b></td>
+          <td class="num"><b>{{ a.avg_peak | format_int }}</b></td>
+          <td class="num">{{ a.median_peak | format_int }}</td>
+          <td class="num">{{ a.max_peak | format_int }}</td>
+          <td class="num">{{ a.avg_followers | format_int }}</td>
+          <td style="font-size:11px;color:var(--muted)">
+            {% for n in a.top_names %}{{ n }}{% if not loop.last %} / {% endif %}{% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.7">
+      💡 <b>考察:</b>
+      ホロライブとにじさんじは平均同接が桁違いで、事務所ブランドが流入に直結していることがわかる。
+      ただし、上位層の多くはエイプリルフール企画による既存VTuberの「新人扱いデビュー」のため、
+      純粋な新人同士の比較というより「大型企画の動員力」を見ている側面がある。
+      中堅事務所(Brave group, VEE, 774inc., ぶいすぽっ!)は件数は少ないが、
+      個人勢よりは確実に平均同接を押し上げており、所属の有無が成果に与える影響は顕著。
+    </div>
+  </section>
+
+  <!-- 成功パターン別分析 -->
+  <section id="pattern">
+    <h2>🔍 成功パターン別分析 — それぞれの再現性を評価
+      <span class="sub">11種類の成功パターンについて平均同接と再現可能性をスコア化</span>
+    </h2>
+    {% for p in insights.pattern_analysis %}
+    <div class="pattern-card">
+      <div class="head">
+        <div class="label">{{ p.label }}</div>
+        <div class="ratio"><b>{{ p.count }}</b>名 該当 / 全体の<b>{{ p.ratio }}%</b></div>
+        <div class="avg-peak">平均同接 {{ p.avg_peak | format_int }}</div>
+      </div>
+      <div class="repro-box">
+        <div class="head" style="margin-bottom:6px">
+          <span class="score">
+            {% for i in range(p.reproducibility.score) %}★{% endfor %}<span class="stars-empty">{% for i in range(5 - p.reproducibility.score) %}★{% endfor %}</span>
+          </span>
+          <span style="color:var(--text);font-weight:600">再現性: {{ p.reproducibility.label }}</span>
+          <span class="cost-tag">💰 {{ p.reproducibility.cost }}</span>
+        </div>
+        <div class="detail">{{ p.reproducibility.note }}</div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px"><b style="color:var(--accent3)">代表チャンネル(同接上位5):</b></div>
+      <div class="reps">
+        {% for r in p.representatives %}
+        <a class="rep-mini" href="{{ r.video_url }}" target="_blank" rel="noopener">
+          <img src="{{ r.thumb_url }}" alt="" loading="lazy" />
+          <div>
+            <div class="rn">{{ r.name }}</div>
+            <div class="rp">同接 <b>{{ r.peak | format_int }}</b> / {{ r.agency }}</div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+
+  <!-- SNS戦略分析 -->
+  <section id="sns">
+    <h2>📱 SNS戦略分析 — TikTok/Twitter/切り抜きの効果
+      <span class="sub">各SNSがもたらす成果とその考察</span>
+    </h2>
+    <div class="sns-grid">
+      <div class="sns-panel">
+        <div class="title">🐦 Twitter公式アカウント</div>
+        <div class="number">{{ insights.sns_analysis.twitter_account.with_count }}<small>/ 120名が運用</small></div>
+        <div class="comment">{{ insights.sns_analysis.twitter_account.comment }}</div>
+      </div>
+      <div class="sns-panel">
+        <div class="title">🐦 Twitter拡散で伸びた層</div>
+        <div class="number">{{ insights.sns_analysis.twitter_buzz.count }}<small>名, avg {{ insights.sns_analysis.twitter_buzz.avg_peak | format_int }}</small></div>
+        <div class="comment">{{ insights.sns_analysis.twitter_buzz.comment }}</div>
+      </div>
+      <div class="sns-panel">
+        <div class="title">📱 TikTok拡散</div>
+        <div class="number">{{ insights.sns_analysis.tiktok_buzz.count }}<small>名, avg {{ insights.sns_analysis.tiktok_buzz.avg_peak | format_int }}</small></div>
+        <div class="comment">{{ insights.sns_analysis.tiktok_buzz.comment }}</div>
+      </div>
+      <div class="sns-panel">
+        <div class="title">✂️ 切り抜き拡散</div>
+        <div class="number">{{ insights.sns_analysis.clip_buzz.count }}<small>名, avg {{ insights.sns_analysis.clip_buzz.avg_peak | format_int }}</small></div>
+        <div class="comment">{{ insights.sns_analysis.clip_buzz.comment }}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 個人勢成功事例研究 -->
+  <section id="indie">
+    <h2>💎 個人勢 成功事例研究 — 事務所なしで同接500超に到達した例
+      <span class="sub">大手事務所バックアップなしで成果を出した15例とその成功要因</span>
+    </h2>
+    <div class="indie-grid">
+      {% for i in insights.indie_success_cases %}
+      <a class="indie-card" href="{{ i.video_url }}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+        <img src="{{ i.thumb_url }}" alt="" loading="lazy" />
+        <div class="body">
+          <div class="name">{{ i.name }}</div>
+          <div class="stats">同接 <b>{{ i.peak | format_int }}</b> / 登録 {{ i.followers | format_int }}</div>
+          <div class="factors">
+            {% for f in i.key_factors %}<div>{{ f }}</div>{% endfor %}
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.7">
+      💡 <b>共通パターン:</b>
+      個人勢で同接500以上に到達した例は、ほぼ全員が複数の成功パターンを同時に回している。
+      「TikTok + Twitter + 歌」「コラボ + 切り抜き + 企画」のように
+      2〜3つの再現可能な要素を組み合わせているのが共通点。
+      単一パターンで成功した個人勢は存在しないと言って良い。
+    </div>
+  </section>
+
+  <!-- 失敗パターン -->
+  <section id="fail">
+    <h2>⚠️ 失敗パターン — バズシグナル未検出の18名
+      <span class="sub">8クエリ×5件の検索でも「まとめ・切り抜き・話題」がヒットしなかった群</span>
+    </h2>
+    <p style="font-size:13px">
+      これらは情報発信・告知・コミュニティ形成のどれも不足しており、
+      Web上に言及がほぼ存在しない状態で初配信に至ったと考えられる。
+      下位層に偏っているのは必然で、情報を作らずに配信を始めれば埋もれる。
+      ただし<b style="color:var(--accent3)">「幽李鈴 Uririn Ch.」(peak 11,860)</b>のようなダークホースも存在し、
+      これは新人すぎて記事化が追いついていない or 検索クエリから漏れているケースと考えられる。
+    </p>
+    <div class="no-signal-list">
+      {% for n in insights.no_signal_cases %}
+      <a class="no-signal-item" href="{{ n.video_url }}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">
+        <span class="n">{{ n.name }}</span>
+        <span class="p">{{ n.peak | format_int }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.7">
+      💡 <b>学べる教訓:</b>
+      Twitterで1バズ・切り抜き動画1本・まとめ記事1件 — これら<b style="color:var(--accent3)">「たった1つのバズシグナル」</b>を
+      作れるかどうかで、E層(250未満)から脱出できるかが決まる。
+      「情報ゼロで初配信」は最も避けるべき失敗パターン。
+    </div>
+  </section>
+
+  <!-- サマリー統計 -->
+  <section id="stats">
+    <h2>📈 全体統計
+      <span class="sub">全120チャンネルの分布データ</span>
+    </h2>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label">分析対象チャンネル数</div>
+        <div class="value">{{ stats.total }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">最高同接の合計</div>
+        <div class="value">{{ stats.total_peak | format_int }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">平均最高同接</div>
+        <div class="value">{{ stats.avg_peak | format_int }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">バズシグナル検出済</div>
+        <div class="value">{{ stats.with_signals }} / {{ stats.total }}</div>
+      </div>
+    </div>
+
+    <h3>所属事務所別 分布</h3>
+    <div class="dist-list">
+      {% for agency, count in stats.agency_dist %}
+      <div class="dist-item">
+        <span>{{ agency }}</span>
+        <span class="bar"><span style="width: {{ (count * 100 / stats.total) | round(1) }}%"></span></span>
+        <span>{{ count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <h3>成功パターン別 分布(複数該当あり)</h3>
+    <div class="dist-list">
+      {% for label, key, count in stats.pattern_dist %}
+      <div class="dist-item">
+        <span>{{ label }}</span>
+        <span class="bar"><span style="width: {{ (count * 100 / stats.total) | round(1) }}%"></span></span>
+        <span>{{ count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <h3>最高同接帯 分布</h3>
+    <div class="dist-list">
+      {% for tier, count in stats.tier_dist %}
+      <div class="dist-item">
+        <span>{{ tier }}</span>
+        <span class="bar"><span style="width: {{ (count * 100 / stats.total) | round(1) }}%"></span></span>
+        <span>{{ count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- VTuber個別カード -->
+  <section id="cards">
+    <h2>🎴 VTuber個別分析 ({{ stats.total }}チャンネル)
+      <span class="sub">カードをクリックすると詳細な分析・Web検索結果が開きます</span>
+    </h2>
+    <div class="filter-bar">
+      <label>検索
+        <input type="text" id="filter-text" placeholder="チャンネル名・タイトルで検索" />
+      </label>
+      <label>所属
+        <select id="filter-agency">
+          <option value="">すべて</option>
+          {% for agency, _ in stats.agency_dist %}
+          <option value="{{ agency }}">{{ agency }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>成功パターン
+        <select id="filter-pattern">
+          <option value="">すべて</option>
+          {% for label, key, _ in stats.pattern_dist %}
+          <option value="{{ key }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>ソート
+        <select id="sort">
+          <option value="peak-desc">最高同接 降順</option>
+          <option value="peak-asc">最高同接 昇順</option>
+          <option value="subs-desc">登録者 降順</option>
+          <option value="name">名前順</option>
+        </select>
+      </label>
+      <span class="count" id="visible-count"></span>
+    </div>
+
+    <div class="cards" id="cards-container">
+      {% for entry in cards %}
+      {% set a = entry.analysis %}
+      <div class="card"
+           data-name="{{ entry.channel_name | lower }}"
+           data-title="{{ (entry.video_title or '') | lower }}"
+           data-agency="{{ a.agency }}"
+           data-patterns="{{ a.patterns | join(' ') }}"
+           data-peak="{{ entry.peak_viewers or 0 }}"
+           data-subs="{{ entry.yt_follower_count or 0 }}"
+           data-index="{{ loop.index0 }}">
+        <img class="thumb" src="{{ entry.thumb_url }}" alt="" loading="lazy" />
+        <div class="body">
+          <div class="name">{{ entry.channel_name }}</div>
+          <div class="meta">
+            <span class="peak">同接 {{ entry.peak_viewers | format_int }}</span>
+            {% if entry.yt_follower_count %}
+            <span class="subs">登録 {{ entry.yt_follower_count | format_int }}</span>
+            {% endif %}
+            <span>{{ entry.stream_time }}</span>
+          </div>
+          <div class="tags">
+            <span class="tag agency">{{ a.agency }}</span>
+            <span class="tag tier-{{ a.peak_tier[0] | lower }}">{{ a.peak_tier }}</span>
+            {% for label in a.pattern_labels[:3] %}
+            <span class="tag pattern">{{ label }}</span>
+            {% endfor %}
+          </div>
+          <div class="summary">{{ a.summary }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+</main>
+
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="modal"></div>
+</div>
+
+<footer>
+  データソース: <a href="https://eve.ebb.jp/yt2/analyze_concurrency.php" style="color:var(--accent3)">eve.ebb.jp</a>
+  / 本レポートは公開情報(YouTube動画情報 + DuckDuckGo検索結果)を自動収集して生成したもので、
+  成功要因の断定ではなく相関の記述です / 生成日時: {{ generated_at }}
+</footer>
+
+<script>
+const data = {{ cards | tojson }};
+
+function fmt(n) {
+  if (n === null || n === undefined || n === 0) return "-";
+  return Number(n).toLocaleString();
+}
+
+function render() {
+  const q = document.getElementById('filter-text').value.toLowerCase();
+  const agency = document.getElementById('filter-agency').value;
+  const pattern = document.getElementById('filter-pattern').value;
+  const sort = document.getElementById('sort').value;
+  const cards = Array.from(document.querySelectorAll('#cards-container .card'));
+
+  let visible = 0;
+  cards.forEach(c => {
+    const name = c.dataset.name || '';
+    const title = c.dataset.title || '';
+    const ca = c.dataset.agency || '';
+    const cp = (c.dataset.patterns || '').split(' ');
+    const okText = !q || name.includes(q) || title.includes(q);
+    const okAgency = !agency || ca === agency;
+    const okPattern = !pattern || cp.includes(pattern);
+    const show = okText && okAgency && okPattern;
+    c.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  const container = document.getElementById('cards-container');
+  const sorted = cards.slice().sort((a, b) => {
+    if (sort === 'peak-desc') return (+b.dataset.peak) - (+a.dataset.peak);
+    if (sort === 'peak-asc') return (+a.dataset.peak) - (+b.dataset.peak);
+    if (sort === 'subs-desc') return (+b.dataset.subs) - (+a.dataset.subs);
+    if (sort === 'name') return a.dataset.name.localeCompare(b.dataset.name, 'ja');
+    return 0;
+  });
+  sorted.forEach(c => container.appendChild(c));
+
+  document.getElementById('visible-count').textContent = `表示: ${visible}件`;
+}
+
+function openModal(idx) {
+  const e = data[idx];
+  const a = e.analysis;
+  const r = e.research || {};
+  const modal = document.getElementById('modal');
+  let html = `
+    <button class="close" onclick="closeModal()">閉じる ✕</button>
+    <h3>${e.channel_name}</h3>
+    <div style="color:#8a90a6;font-size:12px;margin-bottom:12px">
+      最高同接 <b style="color:#ff4081">${fmt(e.peak_viewers)}</b>
+      ${e.yt_follower_count ? ` / 登録者 <b style="color:#5e7bff">${fmt(e.yt_follower_count)}</b>` : ''}
+      ${e.yt_view_count ? ` / 初配信再生 ${fmt(e.yt_view_count)}` : ''}
+    </div>
+    <img src="${e.thumb_url}" style="width:100%;border-radius:8px;margin-bottom:10px" />
+
+    <div class="section-h">基本情報</div>
+    <dl class="kv">
+      <dt>動画タイトル</dt><dd>${e.video_title || '-'}</dd>
+      <dt>配信日時</dt><dd>${e.stream_time || '-'}</dd>
+      <dt>所属(推定)</dt><dd>${a.agency}</dd>
+      <dt>最高同接帯</dt><dd>${a.peak_tier}</dd>
+      <dt>YouTubeチャンネル</dt><dd>${e.yt_channel_url ? `<a href="${e.yt_channel_url}" target="_blank" style="color:#80cbc4">${e.yt_channel || e.yt_channel_url}</a>` : '-'}</dd>
+      <dt>動画URL</dt><dd><a href="${e.video_url}" target="_blank" style="color:#80cbc4">${e.video_url}</a></dd>
+    </dl>
+
+    ${Object.keys(e.socials || {}).length > 0 ? `
+    <div class="section-h">SNSアカウント(説明欄より抽出)</div>
+    <div>
+      ${Object.entries(e.socials).map(([k, vs]) => {
+        return vs.map(v => {
+          const url = {
+            twitter: `https://x.com/${v}`,
+            tiktok: `https://www.tiktok.com/@${v}`,
+            instagram: `https://instagram.com/${v}`,
+            twitch: `https://twitch.tv/${v}`,
+            discord: `https://discord.gg/${v}`,
+          }[k] || v;
+          return `<a href="${url}" target="_blank" style="display:inline-block;margin:2px 6px 2px 0;padding:3px 10px;background:#2a2e3d;color:#80cbc4;border-radius:999px;text-decoration:none;font-size:12px">${k}: ${v}</a>`;
+        }).join('');
+      }).join('')}
+    </div>` : ''}
+
+    <div class="section-h">成功パターン分類</div>
+    <div>${(a.pattern_labels || []).map(l => `<span class="tag pattern">${l}</span>`).join(' ') || '<span style="color:#8a90a6">該当パターン未検出</span>'}</div>
+
+    <div class="section-h">分析サマリー</div>
+    <pre>${a.summary}</pre>
+  `;
+
+  if (e.buzz_details && e.buzz_details.length > 0) {
+    html += `<div class="section-h">SNS・切り抜きで検出した具体的な言及</div>`;
+    for (const bd of e.buzz_details) {
+      html += `<div style="font-size:12px;color:#80cbc4;margin:10px 0 4px;font-weight:700">${bd.category_label}</div>`;
+      for (const hit of bd.hits) {
+        const matched = (hit.matched || []).map(m => `<span class="matched">${m}</span>`).join('');
+        const title = hit.title ? `<b>${hit.title}</b>` : '';
+        const snippet = hit.snippet || hit.reason || '';
+        const url = hit.url ? `<div><a href="${hit.url}" target="_blank">${hit.url}</a></div>` : '';
+        html += `<div class="buzz-item">${matched}${title}<div>${snippet}</div>${url}</div>`;
+      }
+    }
+  }
+
+  if (r.results && r.results.length > 0) {
+    html += `<div class="section-h">Web検索で取得した参考情報 (${r.results.length}件)</div>`;
+    const shown = r.results.slice(0, 15);
+    for (const res of shown) {
+      html += `<div class="buzz-item">
+        <div><b>[${res.query_key || ''}]</b> ${res.title || ''}</div>
+        <div style="color:#8a90a6">${res.body || ''}</div>
+        <div><a href="${res.url}" target="_blank">${res.url}</a></div>
+      </div>`;
+    }
+    if (r.results.length > 15) {
+      html += `<div style="color:#8a90a6;font-size:12px;text-align:center;margin-top:6px">他 ${r.results.length - 15} 件の結果は省略</div>`;
+    }
+  }
+
+  if (e.yt_description) {
+    html += `<div class="section-h">動画説明欄(冒頭1500文字)</div>`;
+    html += `<pre>${(e.yt_description || '').slice(0, 1500)}</pre>`;
+  }
+
+  modal.innerHTML = html;
+  document.getElementById('modal-backdrop').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-backdrop').classList.remove('open');
+}
+
+document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+  if (e.target.id === 'modal-backdrop') closeModal();
+});
+
+document.querySelectorAll('#cards-container .card').forEach(c => {
+  c.addEventListener('click', () => openModal(+c.dataset.index));
+});
+
+document.getElementById('filter-text').addEventListener('input', render);
+document.getElementById('filter-agency').addEventListener('change', render);
+document.getElementById('filter-pattern').addEventListener('change', render);
+document.getElementById('sort').addEventListener('change', render);
+
+render();
+</script>
+</body>
+</html>
