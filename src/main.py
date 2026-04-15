@@ -8,6 +8,7 @@
   --skip-research    : Web調査をスキップ
   --only-report      : レポート生成のみ実行
   --research-sleep S : ddgs呼び出し間の待機秒数 (デフォルト1.3)
+  --encrypt PASSWORD : レポート生成後にAES-256-GCMで暗号化(パスワード保護)
 """
 
 from __future__ import annotations
@@ -100,6 +101,14 @@ def run_pipeline(args: argparse.Namespace) -> None:
     # Phase 5: レポート生成
     print("=== Phase 5: HTMLレポート生成 ===")
     reporter.generate_report(analyzed_path, report_path, template_dir)
+
+    # Phase 6: パスワード暗号化(オプション)
+    if args.encrypt:
+        print("\n=== Phase 6: パスワード暗号化 ===")
+        import encrypt_report
+        sys.argv = ["encrypt_report.py", args.encrypt]
+        encrypt_report.main()
+
     print("\n=== 完了 ===")
     print(f"レポート: {report_path}")
     print("プレビュー: launch.json 経由で python http.server を起動して確認可能")
@@ -112,6 +121,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--skip-research", action="store_true")
     p.add_argument("--only-report", action="store_true")
     p.add_argument("--research-sleep", type=float, default=1.3)
+    p.add_argument(
+        "--encrypt",
+        type=str,
+        default=None,
+        metavar="PASSWORD",
+        help="レポート生成後にAES-256-GCMで暗号化(パスワード保護)",
+    )
     return p.parse_args()
 
 
