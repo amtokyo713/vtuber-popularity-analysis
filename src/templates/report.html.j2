@@ -650,10 +650,15 @@
 </head>
 <body>
 <header>
-  <h1>新人VTuber 人気要因 総合分析レポート</h1>
+  <h1>新人VTuber 人気要因 総合分析レポート{% if filtered_out_major %} <span style="font-size:14px;color:#80cbc4">(個人勢・中堅事務所のみ)</span>{% endif %}</h1>
   <div class="sub">
     対象: {{ stats.total }}チャンネル (eve.ebb.jp「1年間の同接ランキング」より) /
     生成: {{ generated_at }}
+    {% if filtered_out_major %}
+    <div style="margin-top:6px;color:#ff80ab">
+      🚫 除外事務所: {{ excluded_agencies | join(' / ') }} ({{ excluded_count }}名を非表示)
+    </div>
+    {% endif %}
   </div>
   <nav>
     <a href="#summary">📌 エグゼクティブサマリー</a>

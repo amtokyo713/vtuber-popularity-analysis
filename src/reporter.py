@@ -9,7 +9,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from analyzer import SUCCESS_PATTERNS
+from analyzer import MAJOR_AGENCY_FILTER, SUCCESS_PATTERNS
 from insights import generate_insights
 
 
@@ -90,10 +90,28 @@ def _format_analysis_for_card(analyzed_entry: dict) -> dict:
     }
 
 
-def generate_report(analyzed_path: Path, output_path: Path, template_dir: Path) -> None:
+def generate_report(
+    analyzed_path: Path,
+    output_path: Path,
+    template_dir: Path,
+    filter_out_major: bool = False,
+) -> None:
     analyzed = json.loads(analyzed_path.read_text(encoding="utf-8"))
+
+    excluded_count = 0
+    if filter_out_major:
+        before = len(analyzed)
+        analyzed = [
+            e for e in analyzed if e["analysis"]["agency"] not in MAJOR_AGENCY_FILTER
+        ]
+        excluded_count = before - len(analyzed)
+        print(
+            f"[reporter] filter_out_major: excluded {excluded_count} channels "
+            f"({sorted(MAJOR_AGENCY_FILTER)}) → {len(analyzed)} remain"
+        )
+
     stats = _build_stats(analyzed)
-    insights = generate_insights(analyzed)
+    insights = generate_insights(analyzed, filtered=filter_out_major)
 
     # カード表示用データ (同接降順)
     cards = [_format_analysis_for_card(e) for e in analyzed]
@@ -114,6 +132,9 @@ def generate_report(analyzed_path: Path, output_path: Path, template_dir: Path) 
         insights=insights,
         generated_at=datetime.now().strftime("%Y-%m-%d %H:%M"),
         success_patterns=SUCCESS_PATTERNS,
+        filtered_out_major=filter_out_major,
+        excluded_agencies=sorted(MAJOR_AGENCY_FILTER) if filter_out_major else [],
+        excluded_count=excluded_count,
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(html, encoding="utf-8")

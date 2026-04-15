@@ -121,7 +121,7 @@ def _safe_median(values: list[int | float]) -> int:
 # ---------------------------------------------------------------------------
 # エグゼクティブサマリー(冒頭3〜5個の主要な発見)
 # ---------------------------------------------------------------------------
-def build_executive_summary(analyzed: list[dict]) -> list[dict]:
+def build_executive_summary(analyzed: list[dict], filtered: bool = False) -> list[dict]:
     total = len(analyzed)
 
     # 4/1エイプリルフール現象
@@ -134,6 +134,7 @@ def build_executive_summary(analyzed: list[dict]) -> list[dict]:
 
     # 個人勢率
     indie = sum(1 for e in analyzed if e["analysis"]["agency"] == "個人勢/不明")
+    indie_pct = indie * 100 // max(total, 1)
 
     # S層とE層の個人勢率比較
     s_tier = [e for e in analyzed if e["analysis"]["peak_tier"] == "S(1万超)"]
@@ -142,6 +143,7 @@ def build_executive_summary(analyzed: list[dict]) -> list[dict]:
     e_indie = sum(1 for e in e_tier if e["analysis"]["agency"] == "個人勢/不明")
 
     # 平均同接(パターン別)
+    pattern_count: dict[str, int] = {}
     pattern_avg: dict[str, int] = {}
     for p in PATTERN_REPRODUCIBILITY:
         peaks = [
@@ -150,47 +152,102 @@ def build_executive_summary(analyzed: list[dict]) -> list[dict]:
             if p in e["analysis"]["patterns"]
         ]
         if peaks:
+            pattern_count[p] = len(peaks)
             pattern_avg[p] = int(mean(peaks))
 
-    return [
-        {
-            "icon": "🎭",
-            "title": "「エイプリルフール現象」が上位層を支配している",
-            "body": (
-                f"全120チャンネル中 {april_fool}件 が2026年4月1日の配信で、同接TOP10のうち "
-                f"{top10_april}件 が4/1配信。ホロライブ/にじさんじの既存タレントが"
-                "「新キャラで新人デビュー」というエイプリルフール企画を行い、"
-                "既存ファン層がそのまま流入した構造。AZKi Channelの説明欄にも"
-                "「※エイプリルフール企画でした！」と明記されている。"
-                "つまり「新人ランキング」とは言っても、"
-                "上位層は実質「既存VTuberのネタ配信」が多くを占める。"
-            ),
-        },
-        {
-            "icon": "🏢",
-            "title": "事務所パワーが平均同接を7倍引き上げる",
-            "body": (
-                f"大手事務所所属者(agency_power該当20名)の平均同接は約 {pattern_avg.get('agency_power', 0):,} で、"
-                f"個人勢単独(indie_solo該当52名)の平均 {pattern_avg.get('indie_solo', 0):,} の実に約7倍。"
-                f"ただし全120名のうち {indie}名({indie*100//total}%)が個人勢/不明で、"
-                "下位層は個人勢が占有している。"
-                f"S層(1万超)の個人勢率は {s_indie*100//max(len(s_tier),1)}% だが、"
-                f"E層(250未満)の個人勢率は {e_indie*100//max(len(e_tier),1)}% と、"
-                "上に行くほど事務所ブランドの影響が強くなる。"
-            ),
-        },
+    twitter_n = pattern_count.get("twitter_spread", 0)
+    tiktok_n = pattern_count.get("tiktok_spread", 0)
+    clip_n = pattern_count.get("clip_spread", 0)
+    music_n = pattern_count.get("music_power", 0)
+    indie_solo_n = pattern_count.get("indie_solo", 0)
+    no_sig = sum(1 for e in analyzed if not (e.get("research") or {}).get("buzz_signals"))
+
+    items: list[dict] = []
+
+    # 1. エイプリルフール現象 / または 個人勢構造
+    if filtered:
+        items.append(
+            {
+                "icon": "💎",
+                "title": f"大手3社を除外した結果、{total}名中{indie}名({indie_pct}%)が個人勢/不明",
+                "body": (
+                    "このレポートは ホロライブ / にじさんじ / ぶいすぽっ! の3大事務所を除外し、"
+                    f"残り {total}チャンネルだけを集計したものです。"
+                    f"そのうち {indie}名({indie_pct}%)が個人勢/不明、"
+                    "残りは中堅・小規模事務所(Brave group / VEE / 774inc. / ネオポルテ等)の所属者です。"
+                    "「事務所バックアップなしでもどう伸びているか」を読み取りやすい構成になっています。"
+                ),
+            }
+        )
+    else:
+        items.append(
+            {
+                "icon": "🎭",
+                "title": "「エイプリルフール現象」が上位層を支配している",
+                "body": (
+                    f"全{total}チャンネル中 {april_fool}件 が2026年4月1日の配信で、同接TOP10のうち "
+                    f"{top10_april}件 が4/1配信。ホロライブ/にじさんじの既存タレントが"
+                    "「新キャラで新人デビュー」というエイプリルフール企画を行い、"
+                    "既存ファン層がそのまま流入した構造。AZKi Channelの説明欄にも"
+                    "「※エイプリルフール企画でした！」と明記されている。"
+                    "つまり「新人ランキング」とは言っても、"
+                    "上位層は実質「既存VTuberのネタ配信」が多くを占める。"
+                ),
+            }
+        )
+
+    # 2. 事務所パワー / または 中堅事務所の影響
+    if pattern_avg.get("agency_power", 0) > 0 and not filtered:
+        items.append(
+            {
+                "icon": "🏢",
+                "title": "事務所パワーが平均同接を7倍引き上げる",
+                "body": (
+                    f"大手事務所所属者(agency_power該当{pattern_count.get('agency_power', 0)}名)の平均同接は約 {pattern_avg.get('agency_power', 0):,} で、"
+                    f"個人勢単独(indie_solo該当{indie_solo_n}名)の平均 {pattern_avg.get('indie_solo', 0):,} の実に約7倍。"
+                    f"ただし全{total}名のうち {indie}名({indie_pct}%)が個人勢/不明で、"
+                    "下位層は個人勢が占有している。"
+                    f"S層(1万超)の個人勢率は {s_indie*100//max(len(s_tier),1)}% だが、"
+                    f"E層(250未満)の個人勢率は {e_indie*100//max(len(e_tier),1)}% と、"
+                    "上に行くほど事務所ブランドの影響が強くなる。"
+                ),
+            }
+        )
+    elif filtered:
+        items.append(
+            {
+                "icon": "🏢",
+                "title": "中堅事務所と個人勢の競争 — ブランド差は思ったより小さい",
+                "body": (
+                    "大手3社を除外したこのデータでは、Brave group / VEE / 774inc. / ネオポルテ等の中堅事務所と"
+                    "完全な個人勢が同じ土俵で競っている。"
+                    f"個人勢単独パターン(indie_solo)の平均同接は {pattern_avg.get('indie_solo', 0):,} で、"
+                    "中堅所属者と大きな差はない。"
+                    "つまりこの層では「所属の有無」よりも「企画力・SNS運用・歌の有無」が成果に直結している。"
+                ),
+            }
+        )
+
+    # 3. SNS拡散
+    twitter_pct = twitter_n * 100 // max(total, 1)
+    tiktok_pct = tiktok_n * 100 // max(total, 1)
+    items.append(
         {
             "icon": "📱",
             "title": "SNS拡散(Twitter・TikTok)はほぼ全層で鍵になる",
             "body": (
-                f"120名中、twitter_spread が検出されたのは65名(54%)、"
-                f"tiktok_spread が46名(38%)。さらに clip_spread(切り抜き) 33名。"
+                f"{total}名中、twitter_spread が検出されたのは{twitter_n}名({twitter_pct}%)、"
+                f"tiktok_spread が{tiktok_n}名({tiktok_pct}%)。さらに clip_spread(切り抜き) {clip_n}名。"
                 "TikTokとTwitterはほぼ全層で必須の施策であり、個人勢でも再現可能。"
                 "特に下位〜中位層では、どちらかで1本バズると同接が跳ねる。"
                 "Twitter公式アカウント運用の有無そのものよりも、"
                 "「バズを作れるコンテンツを投げ続けているか」が鍵。"
             ),
-        },
+        }
+    )
+
+    # 4. 個人勢成功パターン
+    items.append(
         {
             "icon": "🎵",
             "title": "個人勢成功パターンは「歌・企画・SNS」の三位一体",
@@ -200,20 +257,27 @@ def build_executive_summary(analyzed: list[dict]) -> list[dict]:
                 "のいずれか2つ以上を組み合わせている。"
                 "単独パターンで500を超えた個人勢は存在しない。"
                 "「個人勢で伸びたい」なら、デビュー前に複数ルートで同時攻めるのが再現可能な戦略。"
+                f"このデータでは music_power 該当が {music_n}名 / 全体の {music_n*100//max(total,1)}%。"
             ),
-        },
+        }
+    )
+
+    # 5. 失敗パターン
+    items.append(
         {
             "icon": "⚠️",
-            "title": "18名はバズシグナル皆無で埋もれている",
+            "title": f"{no_sig}名はバズシグナル皆無で埋もれている",
             "body": (
-                "全120名のうち18名は、8種類のWeb検索クエリすべてで「まとめ・切り抜き・話題」が"
+                f"全{total}名のうち{no_sig}名は、8種類のWeb検索クエリすべてで「まとめ・切り抜き・話題」が"
                 "ヒットせず、分析不能に近い。これらは配信告知・SNS運用・外部発信のどれも不足している"
                 "「情報量ゼロデビュー」で、同接の大半が200以下に沈んでいる。"
                 "逆に言えば、たった1〜2個のバズシグナル(Twitter 1バズ、切り抜き1動画)があれば"
                 "確実にE層からD/C層に上がれる。"
             ),
-        },
-    ]
+        }
+    )
+
+    return items
 
 
 # ---------------------------------------------------------------------------
@@ -614,9 +678,9 @@ def build_no_signal_cases(analyzed: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 # まとめて生成
 # ---------------------------------------------------------------------------
-def generate_insights(analyzed: list[dict]) -> dict[str, Any]:
+def generate_insights(analyzed: list[dict], filtered: bool = False) -> dict[str, Any]:
     return {
-        "executive_summary": build_executive_summary(analyzed),
+        "executive_summary": build_executive_summary(analyzed, filtered=filtered),
         "tier_analysis": build_tier_analysis(analyzed),
         "agency_analysis": build_agency_analysis(analyzed),
         "pattern_analysis": build_pattern_analysis(analyzed),

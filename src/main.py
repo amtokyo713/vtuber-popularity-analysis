@@ -42,7 +42,12 @@ def run_pipeline(args: argparse.Namespace) -> None:
 
     if args.only_report:
         print("=== Phase 5: レポート生成のみ ===")
-        reporter.generate_report(analyzed_path, report_path, template_dir)
+        reporter.generate_report(
+            analyzed_path,
+            report_path,
+            template_dir,
+            filter_out_major=args.filter_out_major,
+        )
         if args.encrypt:
             print("\n=== Phase 6: パスワード暗号化 ===")
             import encrypt_report
@@ -105,7 +110,12 @@ def run_pipeline(args: argparse.Namespace) -> None:
 
     # Phase 5: レポート生成
     print("=== Phase 5: HTMLレポート生成 ===")
-    reporter.generate_report(analyzed_path, report_path, template_dir)
+    reporter.generate_report(
+        analyzed_path,
+        report_path,
+        template_dir,
+        filter_out_major=args.filter_out_major,
+    )
 
     # Phase 6: パスワード暗号化(オプション)
     if args.encrypt:
@@ -132,6 +142,11 @@ def parse_args() -> argparse.Namespace:
         default=None,
         metavar="PASSWORD",
         help="レポート生成後にAES-256-GCMで暗号化(パスワード保護)",
+    )
+    p.add_argument(
+        "--filter-out-major",
+        action="store_true",
+        help="ホロライブ/にじさんじ/ぶいすぽっ! を除外して個人勢・中堅事務所のみで分析",
     )
     return p.parse_args()
 
